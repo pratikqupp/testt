@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your HTML Website</title>
+</head>
+<body>
+
+  <div id="loader" style="display: none;">Loading...</div>
+  <div id="message" style="display: none;"></div>
+
+  <script>
+    function isAndroid() {
+      return /Android/i.test(navigator.userAgent);
+    }
+
+    function isIOS() {
+      return /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    function RedirectLink(url) {
+      window.location.href = url;
+    }
+
+    function fetchData(clinicId) {
+      const apiUrl = 'https://apilink-production.up.railway.app/' + clinicId;
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        }
+      };
+
+      fetch(apiUrl, config)
+        .then(response => response.json())
+        .then(data => {
+          const playstoreUrl = data.playstoreUrl;
+          const applestoreUrl = data.applestoreUrl;
+
+          if (isIOS()) {
+            RedirectLink(applestoreUrl);
+          } else {
+            RedirectLink(playstoreUrl);
+          }
+        })
+        .catch(error => {
+          console.error('API call error:', error);
+          document.getElementById('message').innerText = 'Qup Redirect Error: Unsupported Device';
+          document.getElementById('message').style.display = 'block';
+          document.getElementById('loader').style.display = 'none';
+        });
+    }
+
+    // Extract clinicId from the URL
+    const clinicId = window.location.pathname.split('/')[1];
+
+    // Display loading message
+    document.getElementById('loader').style.display = 'block';
+
+    // Fetch data and handle redirection
+    fetchData(clinicId);
+  </script>
+
+</body>
+</html>
